@@ -1,0 +1,108 @@
+{
+  "name": "LivZap WhatsApp Gateway",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "livzap",
+        "options": {}
+      },
+      "name": "LivZap Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [250, 300],
+      "webhookId": "livzap-webhook"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.event }}",
+        "rules": [
+          {
+            "value2": "message",
+            "output": 0
+          },
+          {
+            "value2": "ready",
+            "output": 1
+          }
+        ],
+        "fallbackOutput": 2
+      },
+      "name": "Route by Event",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [470, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.LIVZAP_URL }}/api/messages/send",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "instanceId",
+              "value": "={{ $json.data.instanceId || 'default' }}"
+            },
+            {
+              "name": "chatId",
+              "value": "={{ $json.data.from }}"
+            },
+            {
+              "name": "text",
+              "value": "Received your message: {{ $json.data.body }}"
+            }
+          ]
+        },
+        "options": {
+          "sendHeaders": true,
+          "headerParameters": {
+            "parameters": [
+              {
+                "name": "x-api-key",
+                "value": "={{ $env.LIVZAP_API_KEY }}"
+              }
+            ]
+          }
+        }
+      },
+      "name": "Send Reply via LivZap",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [690, 200]
+    },
+    {
+      "parameters": {
+        "content": "## LivZap Webhook Flow\n\nReceives events from LivZap WhatsApp gateway and auto-replies to incoming messages.\n\nSet environment variables:\n- LIVZAP_URL: http://localhost:3000\n- LIVZAP_API_KEY: your API key"
+      },
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [200, 100]
+    }
+  ],
+  "connections": {
+    "LivZap Webhook": {
+      "main": [
+        [
+          {
+            "node": "Route by Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Event": {
+      "main": [
+        [
+          {
+            "node": "Send Reply via LivZap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

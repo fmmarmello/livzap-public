@@ -1,0 +1,56 @@
+services:
+  livzap:
+    build: .
+    container_name: livzap
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOST=0.0.0.0
+      - API_KEY=${API_KEY:?API_KEY is required and must be strong}
+      - SECURITY_MODE=${SECURITY_MODE:-strict}
+      - ADMIN_ENABLED=${ADMIN_ENABLED:-true}
+      - ADMIN_SESSION_TTL_MS=${ADMIN_SESSION_TTL_MS:-900000}
+      - SIGNED_URL_SECRET=${SIGNED_URL_SECRET:-}
+      - SIGNED_URL_TTL_SEC=${SIGNED_URL_TTL_SEC:-120}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS:-}
+      - MAX_BODY_SIZE=${MAX_BODY_SIZE:-1mb}
+      - DATA_DIR=/app/data
+      - RATE_LIMIT_WINDOW_MS=${RATE_LIMIT_WINDOW_MS:-60000}
+      - RATE_LIMIT_MAX_REQUESTS=${RATE_LIMIT_MAX_REQUESTS:-120}
+      - RATE_LIMIT_AUTH_WINDOW_MS=${RATE_LIMIT_AUTH_WINDOW_MS:-60000}
+      - RATE_LIMIT_AUTH_MAX_REQUESTS=${RATE_LIMIT_AUTH_MAX_REQUESTS:-30}
+      - WEBHOOK_URL=${WEBHOOK_URL:-}
+      - WEBHOOK_EVENTS=${WEBHOOK_EVENTS:-message,disconnected,ready,qr}
+      - WEBHOOK_SECRET=${WEBHOOK_SECRET:-}
+      - WEBHOOK_TIMEOUT_MS=${WEBHOOK_TIMEOUT_MS:-10000}
+      - WEBHOOK_MAX_RETRIES=${WEBHOOK_MAX_RETRIES:-2}
+      - WHATSAPP_HEADLESS=true
+      - WHATSAPP_AUTO_RECONNECT=${WHATSAPP_AUTO_RECONNECT:-true}
+      - MEDIA_SOURCE_MODE=${MEDIA_SOURCE_MODE:-https_only}
+      - MEDIA_ALLOWED_DOMAINS=${MEDIA_ALLOWED_DOMAINS:-}
+      - MEDIA_LOCAL_BASE_DIR=${MEDIA_LOCAL_BASE_DIR:-/app/temp/uploads}
+      - MEDIA_MAX_DOWNLOAD_BYTES=${MEDIA_MAX_DOWNLOAD_BYTES:-15728640}
+      - ANTIBAN_PROFILE=${ANTIBAN_PROFILE:-conservative}
+      - ANTIBAN_MIN_DELAY_MS=${ANTIBAN_MIN_DELAY_MS:-1200}
+      - ANTIBAN_MAX_DELAY_MS=${ANTIBAN_MAX_DELAY_MS:-4000}
+      - ANTIBAN_TYPING_BY_DEFAULT=${ANTIBAN_TYPING_BY_DEFAULT:-true}
+      - ANTIBAN_MAX_GLOBAL_PER_MINUTE=${ANTIBAN_MAX_GLOBAL_PER_MINUTE:-40}
+      - ANTIBAN_MAX_PER_CHAT_PER_MINUTE=${ANTIBAN_MAX_PER_CHAT_PER_MINUTE:-12}
+      - ANTIBAN_FAILURE_THRESHOLD=${ANTIBAN_FAILURE_THRESHOLD:-3}
+      - ANTIBAN_COOLDOWN_MS=${ANTIBAN_COOLDOWN_MS:-60000}
+      - ANTIBAN_MAX_QUEUE_SIZE=${ANTIBAN_MAX_QUEUE_SIZE:-500}
+      - LOG_LEVEL=info
+    volumes:
+      - livzap_sessions:/app/.wwebjs_auth
+      - livzap_temp:/app/temp
+      - livzap_logs:/app/logs
+      - livzap_data:/app/data
+
+volumes:
+  livzap_sessions:
+  livzap_temp:
+  livzap_logs:
+  livzap_data:
